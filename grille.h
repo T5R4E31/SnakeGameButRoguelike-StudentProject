@@ -2,6 +2,7 @@
 #define GRILLE_H_
 
 #include "pos.h"
+#include "serpent.h"
 typedef struct grille {
   int n;
   int m;
@@ -12,9 +13,9 @@ typedef struct grille {
 grille * grilleAllouer(int n, int m);
 void grilleVider(grille * g);
 void grilleTirageFruit(grille * g);
-void grilleRemplir(grille * g);
+void grilleRemplir(grille * g, serpent * serp);
 void grilleDesallouer(grille * g);
 void grilleRedessiner(grille * g);
-
+char * setColor(int color);
 
 #endif 

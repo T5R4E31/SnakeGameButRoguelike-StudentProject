@@ -47,13 +47,15 @@ void grilleTirageFruit(grille * g){
   return;
 }
 
-void grilleRemplir(grille * g){
-  int i, j;
-  if (g == NULL) return;
-  for (i = 0; i<g->n; i++){
-    for (j = 0; j<g->m; j++){
-      strcpy(g->grid[i][j], "\e[48;5;0m ");
+void grilleRemplir(grille * g, serpent * serp){
+  listSection * head = serp->head;
+  int x = serp->tete_serpent.x;
+  int y = serp->tete_serpent.y;
+  while (head != NULL){
+    for (int i = 0; i<head->sec.taille; i++){
+      (g->grid)[x][++y] = setColor(head->sec.color);
     }
+    head = head->next;
   }
   return;
 }
@@ -80,5 +82,43 @@ void grilleRedessiner(grille * g){
 
   for (int i = 0; i<g->m+2; i++){
     printf("\e[39;45m  ");
+  }
+}
+
+char * setColor(int color){
+  char * s = malloc(10*sizeof(char));
+  switch (color){
+    case 40:
+      s = "\e[40m ";
+      return s;
+    case 41:
+      s = "\e[41m ";
+      return s;
+    case 42:
+      s = "\e[42m ";
+      return s;
+    case 43:
+      s = "\e[43m ";
+      return s;
+    case 44:
+      s = "\e[44m ";
+      return s;
+    case 45:
+      s = "\e[45m ";
+      return s;
+    case 46:
+      s = "\e[46m ";
+      return s;
+    case 47:
+      s = "\e[47m ";
+      return s;
+    case 48:
+      s = "\e[48m ";
+      return s;
+    case 49:
+      s = "\e[49m ";
+      return s;
+    default:
+      return NULL;
   }
 }
