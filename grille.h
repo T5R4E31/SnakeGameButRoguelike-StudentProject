@@ -14,7 +14,7 @@ void grilleVider(grille * g);
 void grilleTirageFruit(grille * g);
 void grilleRemplir(grille * g);
 void grilleDesallouer(grille * g);
-
+void grilleRedessiner(grille * g);
 
 
 #endif 
