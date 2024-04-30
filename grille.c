@@ -9,7 +9,7 @@ grille * grilleAllouer(int n, int m){
   grille * res = malloc(sizeof(grille));
   res->n = n;
   res->m = m;
-  res->grid = malloc(n*m*8*sizeof(char));
+  res->grid = malloc(n*m*12*sizeof(char));
   res->fruit.x = -1;
   res->fruit.y = -1;
   return res;
