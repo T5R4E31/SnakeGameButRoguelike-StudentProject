@@ -1,27 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
 
 #include "grille.h"
+#include "fonction_jeu.h"
 
-int main(){
-  grille * toto = grilleAllouer(20, 30);
+int main(int argc, char *argv[]){
+  if (argc!=5){
+    printf("ERREUR\n Execution : ./main {longueur} {largeur} {delai} {jeu (1 pour serpent)}\n");
+    return EXIT_FAILURE;
+  }
+  
+  int length = atoi(argv[1]);
+  int width = atoi(argv[2]);
+  int delay = atoi(argv[3]);
+
+  initscr();
+  raw();
+  keypad(stdscr, TRUE);
+  noecho();
+
+  halfdelay(delay);
+
+  grille * toto = grilleAllouer(length, width);
   grilleVider(toto); 
   grilleTirageFruit(toto);
+  
+  printf("%d %d %d", length, width, delay);
 
-  serpent * tata = malloc(sizeof(serpent));
-  tata->tete_serpent.x = 3;
-  tata->tete_serpent.y = 4;
-  printf("test 1\n");
-  tata->head = creerListSection();
-  printf("test 2\n");
-  ajouterSectionTete(tata->head, creerSection(5, 44));
-  printf("test 3\n");
-  ajouterSectionTete(tata->head, creerSection(3, 47));
-  printf("test 4\n");
-  grilleRemplir(toto, tata);
-  printf("test 5\n");
-  grilleRedessiner(toto);
-  printf("test 6\n");
-
+  gameLoopSnake(toto);
+  
+  endwin();
   return EXIT_SUCCESS;
 }

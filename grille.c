@@ -27,9 +27,7 @@ void grilleVider(grille * g){
   int i, j;
   if (g == NULL) return;
   for (i = 0; i<g->n; i++){
-    fflush(0);
     for (j = 0; j<g->m; j++){
-      fflush(0);
       (g->grid)[i][j]= "\33[0m ";
     }
   }
@@ -67,22 +65,27 @@ void grilleDesallouer(grille * g){
 }
 
 void grilleRedessiner(grille * g){
+  printf("\33[2J");
+  printf("\33[H"); 
   for (int i = 0; i<g->m+2; i++){
     printf("\e[39;45m  ");
   }
-  printf("\n");
+  printf("\e[0m ");
+  printf("\33[1E");
   for (int i = 0; i<g->n; i++){
     printf("\e[39;45m  ");
     for (int j = 0; j<g->m; j++){
       printf("%s", g->grid[i][j]);
       printf("%s", g->grid[i][j]);
     }
-    printf("\e[39;45m  \n");
+    printf("\e[39;45m  \e[0m \33[1E");
   }
 
   for (int i = 0; i<g->m+2; i++){
     printf("\e[39;45m  ");
   }
+  printf("\e[0m \33[1E");
+  fflush(0);
 }
 
 char * setColor(int color){
