@@ -23,6 +23,12 @@ int main(int argc, char *argv[]){
   raw();
   keypad(stdscr, TRUE);
   noecho();
+  start_color();
+
+  init_pair(1, COLOR_BLACK, COLOR_WHITE);
+  init_pair(2, COLOR_WHITE, COLOR_BLACK);
+  init_pair(4, COLOR_BLACK, COLOR_MAGENTA);
+  init_pair(5, COLOR_BLACK, COLOR_GREEN);
 
   halfdelay(delay);
 
@@ -30,9 +36,33 @@ int main(int argc, char *argv[]){
   grilleVider(toto); 
   grilleTirageFruit(toto);
   
-  //debut de loop de gameplay
-  gameLoopSnake(toto);
-  
+  int opt = 1;
+  int input = 0;
+  while (input!=' '){
+    printGameMenu(opt);
+    fflush(0);
+    input = getch();
+    if (input == -1){
+      continue;
+    }
+    switch(input){
+      case KEY_UP:
+        opt = (opt + 1)%2;
+        break;
+      case KEY_DOWN:
+        opt = (opt + 1)%2;
+        break;
+      case ' ':
+        if (opt == 1){
+          gameLoopSnake(toto);
+        }
+        if (opt == 0){
+          endwin();
+          return EXIT_SUCCESS;
+        }
+    }
+  }
+
   //fin de ncurses, permet de revenir au terminal normal
   endwin();
   return EXIT_SUCCESS;

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ncurses.h>
 
 //Alloue une grille de taille n m.
 //Allouer en malloc(n*m*12*sizeof(char)) fait bugger le programme donc retire
@@ -31,13 +32,17 @@ void grilleVider(grille * g){
   if (g == NULL) return;
   for (i = 0; i<g->n; i++){
     for (j = 0; j<g->m; j++){
-      (g->grid)[i][j]= "\33[0m ";
+      if (!(strcmp(g->grid[i][j], "f"))){
+        continue;
+      }
+      (g->grid)[i][j]= " ";
     }
   }
   return;
 }
 
 //Tire un fruit aléatoire avec rand() et le place dans la grille.
+//on le localise avec "f" pour plus de simplicite
 void grilleTirageFruit(grille * g){
   if (g==NULL) return;
   srand(time(NULL));
@@ -45,11 +50,12 @@ void grilleTirageFruit(grille * g){
   int pos_y = rand() % g->m;
   g->fruit.x = pos_y;
   g->fruit.y = pos_x;
-  g->grid[pos_x][pos_y] = "\e[39;42m ";
+  g->grid[pos_x][pos_y] = "f";
   return;
 }
 
 //Met le serpent dans la grille, pour l'instant uniquement horizontalement.
+//on stock la donnee serpent a l'aide d'un string
 //La suite sera dans le prochain commit
 void grilleRemplir(grille * g, serpent * serp){
   listSection * head = serp->head;
@@ -57,7 +63,7 @@ void grilleRemplir(grille * g, serpent * serp){
   int y = serp->tete_serpent.y;
   while (head != NULL){
     for (int i = 0; i<head->sec.taille; i++){
-      (g->grid)[x][++y] = setColor(head->sec.color);
+      (g->grid)[x][++y] = "serp";
     }
     head = head->next;
   }
@@ -74,30 +80,60 @@ void grilleDesallouer(grille * g){
 //Affiche entièrement la grille.
 //Les couleurs ont été choisi par souci d'esthétique
 //On affiche d'abord la premiere ligne, puis le tableau, puis la derniere ligne
-//complexite quadratique, meme si on n'utilise pas une matrice carree, donc pas tout à fait.
-//o(n^2) si on considère qu'on augmente n et m simultanément
-//o(n) si on fixe une des deux taille
+//La fonction affiche les couleurs à l'aide de ncurses, et non de caractere d'echappement
 void grilleRedessiner(grille * g){
-  printf("\33[2J");
-  printf("\33[H"); 
-  for (int i = 0; i<g->m+2; i++){
-    printf("\e[39;45m  ");
-  }
-  printf("\e[0m ");
-  printf("\33[1E");
-  for (int i = 0; i<g->n; i++){
-    printf("\e[39;45m  ");
-    for (int j = 0; j<g->m; j++){
-      printf("%s", g->grid[i][j]);
-      printf("%s", g->grid[i][j]);
-    }
-    printf("\e[39;45m  \e[0m \33[1E");
+  clear();
+  //On calcul l'endroit où positionner le curseur pour que ce soit centre
+  int x, y;
+  x = getmaxx(stdscr)/2 - g->m;
+  y = getmaxy(stdscr)/2 - g->n/2;
+  move(y, x);
+  //premiere ligne
+  for (int i = 0; i<g->m; i++){
+    attron(COLOR_PAIR(4));
+    printw("  ");
   }
 
-  for (int i = 0; i<g->m+2; i++){
-    printf("\e[39;45m  ");
+  y++;
+  //corps
+  for (int i = 0; i<g->n; i++){
+    //mur de gauche
+    move(y+i, x);
+    attron(COLOR_PAIR(4));
+    printw("  ");
+    for (int j = 0; j<g->m; j++){
+      //comme on possede un controle precis du curseur, on n'affiche que les endroits utile (fruits et serpent)
+      //en evitant des acces memoires inutiles
+      if (!strcmp(g->grid[i][j], "f")){
+        move(y+i, x+2*j);
+        attron(COLOR_PAIR(5));
+        printw("  ");
+        continue;
+      }
+      if (!strcmp(g->grid[i][j], "serp")){
+        move(y+i, x+2*j);
+        attron(COLOR_PAIR(4));
+        printw("  ");
+        continue;
+      }
+    }
+    //mur de droite
+    move(y+i, x+2*(g->m-1));
+    attron(COLOR_PAIR(4));
+    printw("  ");
+    //on s'assure que tout soit bien affiche
+    fflush(0);
+    refresh();
   }
-  printf("\e[0m \33[1E");
+  //on se met a la fin de ce qui est affiche et on affiche la derniere ligne
+  y+=g->n;
+  move(y, x);
+  attron(COLOR_PAIR(4));
+  for (int i = 0; i<g->m; i++){
+    printw("  ");
+  }
+  attron(COLOR_PAIR(2));
+  move(y+1, x);
   fflush(0);
 }
 
