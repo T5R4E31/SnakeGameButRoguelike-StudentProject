@@ -4,7 +4,9 @@
 #include <string.h>
 #include <time.h>
 
-
+//Alloue une grille de taille n m.
+//Allouer en malloc(n*m*12*sizeof(char)) fait bugger le programme donc retire
+//complexite similaire a la fonction grilleRedessiner()
 grille * grilleAllouer(int n, int m){
   grille * res = malloc(sizeof(grille));
   res->n = n;
@@ -23,6 +25,7 @@ grille * grilleAllouer(int n, int m){
   return res;
 }
 
+//Rempli la grille d'espace fond noir.
 void grilleVider(grille * g){
   int i, j;
   if (g == NULL) return;
@@ -34,6 +37,7 @@ void grilleVider(grille * g){
   return;
 }
 
+//Tire un fruit aléatoire avec rand() et le place dans la grille.
 void grilleTirageFruit(grille * g){
   if (g==NULL) return;
   srand(time(NULL));
@@ -45,6 +49,8 @@ void grilleTirageFruit(grille * g){
   return;
 }
 
+//Met le serpent dans la grille, pour l'instant uniquement horizontalement.
+//La suite sera dans le prochain commit
 void grilleRemplir(grille * g, serpent * serp){
   listSection * head = serp->head;
   int x = serp->tete_serpent.x;
@@ -58,12 +64,19 @@ void grilleRemplir(grille * g, serpent * serp){
   return;
 }
 
+//Libere une grille
 void grilleDesallouer(grille * g){
   if (g == NULL) return;
   free(g->grid);
   return;
 }
 
+//Affiche entièrement la grille.
+//Les couleurs ont été choisi par souci d'esthétique
+//On affiche d'abord la premiere ligne, puis le tableau, puis la derniere ligne
+//complexite quadratique, meme si on n'utilise pas une matrice carree, donc pas tout à fait.
+//o(n^2) si on considère qu'on augmente n et m simultanément
+//o(n) si on fixe une des deux taille
 void grilleRedessiner(grille * g){
   printf("\33[2J");
   printf("\33[H"); 
@@ -88,6 +101,11 @@ void grilleRedessiner(grille * g){
   fflush(0);
 }
 
+//Fonction cree pour simplifier le code de la fonction ci dessus. 
+//Revoie un tableau correspondant à la couleur.
+//A note que switch() est utilise ici car sa complexite est strictement de 1
+//contrairement a if, qui aura une complexite augmentant lineairement par rapport au 
+//nombre de if enchaine
 char * setColor(int color){
   char * s = malloc(10*sizeof(char));
   switch (color){
