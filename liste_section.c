@@ -54,7 +54,7 @@ void desallouerListSection(listSection * l){
     free(l);
     return;
   }
-  desallouerListSection(l);
+  desallouerListSection(l->next);
   free(l);
   return;
 }

@@ -122,8 +122,6 @@ void grilleRedessiner(grille * g){
     attron(COLOR_PAIR(4));
     printw("  ");
     //on s'assure que tout soit bien affiche
-    fflush(0);
-    refresh();
   }
   //on se met a la fin de ce qui est affiche et on affiche la derniere ligne
   y+=g->n;
@@ -134,7 +132,6 @@ void grilleRedessiner(grille * g){
   }
   attron(COLOR_PAIR(2));
   move(y+1, x);
-  fflush(0);
 }
 
 //Fonction cree pour simplifier le code de la fonction ci dessus. 

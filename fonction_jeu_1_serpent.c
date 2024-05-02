@@ -46,6 +46,8 @@ void gameLoopSnake(grille * g){
     
     //si le joueur touche un mur, quitte le programme (sans ca le programme segfault)
     if (player->tete_serpent.x == -1 || player->tete_serpent.y == -1 || player->tete_serpent.x == g->n || player->tete_serpent.y == g->m-2){
+      desallouerListSection(player->head);
+      free(player);
       return;
     }
     //met le nouveau serpent dans la grille et l'affiche
