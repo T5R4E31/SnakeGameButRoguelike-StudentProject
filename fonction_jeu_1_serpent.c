@@ -3,17 +3,20 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 void gameLoopSnake(grille * g){
   int input = -1;
+  int last_input = 'd';
+  listSection * tmp = malloc(sizeof(listSection));
   
   //creation d'un serpent avec une position et une couleur arbitraire
   //a rajouter : position aleatoire et couleur aleatoire
   serpent * player = malloc(sizeof(serpent));
   player->head = creerListSection();
-  ajouterSectionTete(player->head, creerSection(1, 45));
   player->tete_serpent.x = 1;
   player->tete_serpent.y = 1;
+  ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
 
   //on s'assure de vider la grille
   grilleVider(g);
@@ -22,34 +25,62 @@ void gameLoopSnake(grille * g){
   grilleTirageFruit(g);
   while (input!='#'){
     //on prend l'input clavier de l'utilisateur
-    input = getch();
-   
     switch (input){
       //deplacement de base de tout jeu video
       case 'z':
         --player->tete_serpent.x;
+        ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
+        tmp = dernierListSection(player->head);
+        avantDernierListSection(player->head)->next = NULL;
+        desallouerListSection(tmp);
+        last_input = input;
         break;
       case 's':
         ++player->tete_serpent.x;
+        ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
+        tmp = dernierListSection(player->head);
+        avantDernierListSection(player->head)->next = NULL;
+        desallouerListSection(tmp);
+        last_input = input;
         break;
       case 'd':
         ++player->tete_serpent.y;
+        ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
+        tmp = dernierListSection(player->head);
+        avantDernierListSection(player->head)->next = NULL;
+        desallouerListSection(tmp);
+        last_input = input;
         break;
       case 'q':
         --player->tete_serpent.y;
+        ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
+        tmp = dernierListSection(player->head);
+        avantDernierListSection(player->head)->next = NULL;
+        desallouerListSection(tmp);
+        last_input = input;
         break;
       //touche p pour quitter
       //a rajouter : menu pour les information de gameplay
       case 'p':
         return;
+        break;
+      default:
+        input = last_input;
+        continue;
     }
     
+    input = getch();
+
+    
+
     //si le joueur touche un mur, quitte le programme (sans ca le programme segfault)
     if (player->tete_serpent.x == -1 || player->tete_serpent.y == -1 || player->tete_serpent.x == g->n || player->tete_serpent.y == g->m-2){
       desallouerListSection(player->head);
       free(player);
       return;
     }
+
+    //if (!(strcmp(g->grid[player->tete_serpent.x][player->tete_serpent.y], "serp"))) return;
     //met le nouveau serpent dans la grille et l'affiche
     grilleRemplir(g, player);
     grilleRedessiner(g);

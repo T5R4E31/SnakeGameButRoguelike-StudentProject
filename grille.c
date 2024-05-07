@@ -59,11 +59,9 @@ void grilleTirageFruit(grille * g){
 //La suite sera dans le prochain commit
 void grilleRemplir(grille * g, serpent * serp){
   listSection * head = serp->head;
-  int x = serp->tete_serpent.x;
-  int y = serp->tete_serpent.y;
   while (head != NULL){
     for (int i = 0; i<head->sec.taille; i++){
-      (g->grid)[x][++y] = "serp";
+      (g->grid)[head->sec.pos_section.x][head->sec.pos_section.y] = "serp";
     }
     head = head->next;
   }

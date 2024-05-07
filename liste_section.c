@@ -2,10 +2,12 @@
 #include "liste_section.h"
 
 //creer la donnee "section", en malloc
-section * creerSection(int taille, int color){
+section * creerSection(int taille, int color, pos pos){
   section * res = malloc(sizeof(section));
   res->taille = taille;
   res->color = color;
+  res->pos_section.x = pos.x;
+  res->pos_section.y = pos.y;
   return res;
 }
 
@@ -19,7 +21,10 @@ void desallouerSection(section * sec){
 //cree une liste section vide
 listSection * creerListSection(){
   listSection * res = malloc(sizeof(listSection));
-  res->sec = *(creerSection(0, 0));
+  pos tmp;
+  tmp.x = 0;
+  tmp.y = 0;
+  res->sec = *(creerSection(0, 0, tmp));
   res->next = NULL;
   return res;
 }
@@ -28,7 +33,7 @@ listSection * creerListSection(){
 //on doit l'utiliser comme : ajouterSectionTete(serpent->head, section_a_ajouter)
 //complexite o(1)
 void ajouterSectionTete(listSection * l, section * sec){
-  listSection * temp = creerListSection();
+  listSection * temp = malloc(sizeof(listSection));
   temp->sec = *(sec);
   temp->next = l->next;
   l->next = temp;
@@ -59,3 +64,21 @@ void desallouerListSection(listSection * l){
   return;
 }
 
+listSection * dernierListSection(listSection * l){
+  if (l == NULL) return NULL;
+  listSection * tmp = l;
+  while (tmp->next!=NULL){
+    tmp = tmp->next;
+  }
+  return tmp;
+}
+
+listSection * avantDernierListSection(listSection * l){
+  if (l == NULL) return NULL;
+  if (l->next == NULL) return NULL;
+  listSection * tmp = l;
+  while (tmp->next->next != NULL){
+    tmp = tmp->next;
+  }
+  return tmp;
+}

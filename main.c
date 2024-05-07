@@ -5,7 +5,7 @@
 #include "grille.h"
 #include "fonction_jeu.h"
 
-#define DELAY 1
+#define DELAY 2
 
 int main(int argc, char *argv[]){
   //on veut strictement 4 argument en plus de ./main
@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
   //a rajouter : test contre l'injection
   int length = 20;
   int width = 20;
-  int delay = DELAY;
+  float delay = DELAY;
 
   //initialisation de ncurses
   initscr();
