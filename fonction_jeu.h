@@ -4,5 +4,6 @@
 
 void gameLoopSnake(grille * g);
 void printGameMenu(int opt);
+int serpentMangeFruit(grille * g, serpent * serp);
 
 #endif

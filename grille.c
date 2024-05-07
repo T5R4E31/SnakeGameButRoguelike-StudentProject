@@ -46,8 +46,12 @@ void grilleVider(grille * g){
 void grilleTirageFruit(grille * g){
   if (g==NULL) return;
   srand(time(NULL));
-  int pos_x = rand() % g->n;
-  int pos_y = rand() % g->m;
+  int pos_x = 2 + rand() % (g->n-2);
+  int pos_y = 2 + rand() % (g->m-2);
+  while (!strcmp(g->grid[pos_x][pos_y], "serp")){
+    pos_x = 2 + rand() %(g->n-2);
+    pos_y = 2 + rand() % (g->m-2);
+  }
   g->fruit.x = pos_y;
   g->fruit.y = pos_x;
   g->grid[pos_x][pos_y] = "f";

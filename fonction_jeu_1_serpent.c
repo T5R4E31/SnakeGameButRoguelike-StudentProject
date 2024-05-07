@@ -20,44 +20,48 @@ void gameLoopSnake(grille * g){
 
   //on s'assure de vider la grille
   grilleVider(g);
+  grilleTirageFruit(g);
   //on re rempli la grille avec notre serpent actuel
   grilleRemplir(g, player);
-  grilleTirageFruit(g);
   while (input!='#'){
     //on prend l'input clavier de l'utilisateur
     switch (input){
       //deplacement de base de tout jeu video
       case 'z':
         --player->tete_serpent.x;
+        last_input = input;
         ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
+        if (serpentMangeFruit(g, player)) break;
         tmp = dernierListSection(player->head);
         avantDernierListSection(player->head)->next = NULL;
         desallouerListSection(tmp);
-        last_input = input;
         break;
       case 's':
         ++player->tete_serpent.x;
+        last_input = input;
         ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
+        if (serpentMangeFruit(g, player)) break;
         tmp = dernierListSection(player->head);
         avantDernierListSection(player->head)->next = NULL;
         desallouerListSection(tmp);
-        last_input = input;
         break;
       case 'd':
         ++player->tete_serpent.y;
+        last_input = input;
         ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
+        if (serpentMangeFruit(g, player)) break;
         tmp = dernierListSection(player->head);
         avantDernierListSection(player->head)->next = NULL;
         desallouerListSection(tmp);
-        last_input = input;
         break;
       case 'q':
         --player->tete_serpent.y;
+        last_input = input;
         ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
+        if (serpentMangeFruit(g, player)) break;
         tmp = dernierListSection(player->head);
         avantDernierListSection(player->head)->next = NULL;
         desallouerListSection(tmp);
-        last_input = input;
         break;
       //touche p pour quitter
       //a rajouter : menu pour les information de gameplay
@@ -74,11 +78,15 @@ void gameLoopSnake(grille * g){
     
 
     //si le joueur touche un mur, quitte le programme (sans ca le programme segfault)
-    if (player->tete_serpent.x == -1 || player->tete_serpent.y == -1 || player->tete_serpent.x == g->n || player->tete_serpent.y == g->m-2){
+    if (player->tete_serpent.x == -1 || player->tete_serpent.y == 0 || player->tete_serpent.x == g->n || player->tete_serpent.y == g->m-1){
       desallouerListSection(player->head);
       free(player);
       return;
     }
+    
+    if (!strcmp(g->grid[player->tete_serpent.x][player->tete_serpent.y], "serp")) return;
+
+    grilleVider(g);
 
     //if (!(strcmp(g->grid[player->tete_serpent.x][player->tete_serpent.y], "serp"))) return;
     //met le nouveau serpent dans la grille et l'affiche
@@ -86,7 +94,6 @@ void gameLoopSnake(grille * g){
     grilleRedessiner(g);
 
     //vide la grille pour ne pas avoir de trace de serpent residuelle
-    grilleVider(g);
     
     //fflush() s'assure de bien afficher tout ce qu'il y a dans le cache
     fflush(stdout);
@@ -147,4 +154,14 @@ void printGameMenu(int opt){
       break;
       ;;
   }
+}
+
+int serpentMangeFruit(grille * g, serpent * serp){
+  if (g->fruit.x == serp->tete_serpent.y && g->fruit.y == serp->tete_serpent.x){
+    g->fruit.x = -1;
+    g->fruit.y = -1;
+    grilleTirageFruit(g);
+    return 1;     
+  }
+  return 0;
 }
