@@ -41,21 +41,41 @@ void grilleVider(grille * g){
   return;
 }
 
+int minTailleGrille(grille * g){
+  if (g->m<g->n) return g->m;
+  return g->n;
+} 
+
 //Tire un fruit aléatoire avec rand() et le place dans la grille.
 //on le localise avec "f" pour plus de simplicite
+//les calculs effectuer on pour but d'eviter de generer un fruit dans le joueur ou dans un mur
 void grilleTirageFruit(grille * g){
   if (g==NULL) return;
   srand(time(NULL));
-  int pos_x = 2 + rand() % (g->n-2);
-  int pos_y = 2 + rand() % (g->m-2);
-  while (!strcmp(g->grid[pos_x][pos_y], "serp")){
-    pos_x = 2 + rand() %(g->n-2);
-    pos_y = 2 + rand() % (g->m-2);
+  int min_pos = minTailleGrille(g);
+  int pos_x = 2 + rand() % (min_pos-3);
+  int pos_y = 2 + rand() % (min_pos-3);
+  while (strcmp(g->grid[pos_x][pos_y], "serp") == 0){
+    pos_x = 2 + rand() %(g->n-3);
+    pos_y = 2 + rand() % (g->m-3);
   }
   g->fruit.x = pos_y;
   g->fruit.y = pos_x;
   g->grid[pos_x][pos_y] = "f";
   return;
+}
+
+//savoir si un fruit est dans la grille
+//cela pourra etre utile dans des futures fonctionalites
+int estFruitGrille(grille * g){
+  for (int i = 0; i<g->n; i++){
+    for (int j = 0; j<g->m; j++){
+      if (strcmp(g->grid[i][j], "f") == 0){
+        return 1;
+      }
+    }
+  }
+  return 0;
 }
 
 //Met le serpent dans la grille, pour l'instant uniquement horizontalement.
@@ -110,12 +130,14 @@ void grilleRedessiner(grille * g){
         move(y+i, x+2*j);
         attron(COLOR_PAIR(5));
         printw("  ");
+        attron(COLOR_PAIR(5));
         continue;
       }
       if (!strcmp(g->grid[i][j], "serp")){
         move(y+i, x+2*j);
         attron(COLOR_PAIR(4));
         printw("  ");
+        attron(COLOR_PAIR(5));
         continue;
       }
     }
@@ -136,45 +158,4 @@ void grilleRedessiner(grille * g){
   move(y+1, x);
 }
 
-//Fonction cree pour simplifier le code de la fonction ci dessus. 
-//Revoie un tableau correspondant à la couleur.
-//A note que switch() est utilise ici car sa complexite est strictement de 1
-//contrairement a if, qui aura une complexite augmentant lineairement par rapport au 
-//nombre de if enchaine
-char * setColor(int color){
-  char * s = malloc(10*sizeof(char));
-  switch (color){
-    case 40:
-      s = "\e[40m ";
-      return s;
-    case 41:
-      s = "\e[41m ";
-      return s;
-    case 42:
-      s = "\e[42m ";
-      return s;
-    case 43:
-      s = "\e[43m ";
-      return s;
-    case 44:
-      s = "\e[44m ";
-      return s;
-    case 45:
-      s = "\e[45m ";
-      return s;
-    case 46:
-      s = "\e[46m ";
-      return s;
-    case 47:
-      s = "\e[47m ";
-      return s;
-    case 48:
-      s = "\e[48m ";
-      return s;
-    case 49:
-      s = "\e[49m ";
-      return s;
-    default:
-      return NULL;
-  }
-}
+

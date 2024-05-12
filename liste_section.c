@@ -54,6 +54,7 @@ void ajouterSectionQueue(listSection * l, section * sec){
   return;
 }
 
+//afin de desallouer la liste section
 void desallouerListSection(listSection * l){
   if (l->next == NULL){
     free(l);
@@ -64,6 +65,8 @@ void desallouerListSection(listSection * l){
   return;
 }
 
+//on veut obtenir la fin de la liste section, on utilise un while pour cela
+//(on ne stock pas la queue du serpent, on des raisons de lisibilite du code)
 listSection * dernierListSection(listSection * l){
   if (l == NULL) return NULL;
   listSection * tmp = l;
@@ -73,6 +76,7 @@ listSection * dernierListSection(listSection * l){
   return tmp;
 }
 
+//dans certain cas, il sera utile d'arriver a l'avant dernier maillon de la chaine
 listSection * avantDernierListSection(listSection * l){
   if (l == NULL) return NULL;
   if (l->next == NULL) return NULL;

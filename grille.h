@@ -12,10 +12,11 @@ typedef struct grille {
 
 grille * grilleAllouer(int n, int m);
 void grilleVider(grille * g);
+int minTailleGrille(grille * g);
 void grilleTirageFruit(grille * g);
+int estFruitGrille(grille * g);
 void grilleRemplir(grille * g, serpent * serp);
 void grilleDesallouer(grille * g);
 void grilleRedessiner(grille * g);
-char * setColor(int color);
 
 #endif 
