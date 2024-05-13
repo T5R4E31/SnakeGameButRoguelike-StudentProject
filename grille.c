@@ -35,10 +35,23 @@ void grilleVider(grille * g){
       if (!(strcmp(g->grid[i][j], "f"))){
         continue;
       }
+      if (!(strcmp(g->grid[i][j], "w"))){
+        continue;
+      }
       (g->grid)[i][j]= " ";
     }
   }
   return;
+}
+
+void grilleVoid(grille * g){
+  int i, j;
+  if (g == NULL) return;
+  for (i = 0; i<g->n; i++){
+    for (j = 0; j<g->m; j++){
+      (g->grid)[i][j] = " ";
+    }
+  }
 }
 
 int minTailleGrille(grille * g){
@@ -55,7 +68,7 @@ void grilleTirageFruit(grille * g){
   int min_pos = minTailleGrille(g);
   int pos_x = 2 + rand() % (min_pos-3);
   int pos_y = 2 + rand() % (min_pos-3);
-  while (strcmp(g->grid[pos_x][pos_y], "serp") == 0){
+  while (strcmp(g->grid[pos_x][pos_y], "serp") == 0 && strcmp(g->grid[pos_x][pos_y], "w") == 0){
     pos_x = 2 + rand() %(g->n-3);
     pos_y = 2 + rand() % (g->m-3);
   }
@@ -110,6 +123,7 @@ void grilleRedessiner(grille * g){
   x = getmaxx(stdscr)/2 - g->m;
   y = getmaxy(stdscr)/2 - g->n/2;
   move(y, x);
+  int color = 8;
   //premiere ligne
   for (int i = 0; i<g->m; i++){
     attron(COLOR_PAIR(4));
@@ -135,6 +149,13 @@ void grilleRedessiner(grille * g){
       }
       if (!strcmp(g->grid[i][j], "serp")){
         move(y+i, x+2*j);
+        attron(COLOR_PAIR(color));
+        printw("  ");
+        attron(COLOR_PAIR(5));
+        continue;
+      }
+      if (!strcmp(g->grid[i][j], "w")){
+        move(y+i, x+2*j);
         attron(COLOR_PAIR(4));
         printw("  ");
         attron(COLOR_PAIR(5));
@@ -159,3 +180,15 @@ void grilleRedessiner(grille * g){
 }
 
 
+void grilleMurer(grille * g, int lvl){
+  if (g == NULL) return;
+  srand(time(NULL));
+  for (int i = 0; i<g->n; i++){
+    for (int j = 0; j<g->m; j++){
+      if (rand() % 100 <= (lvl*1.05 + 3) && (strcmp(g->grid[i][j], "serp") != 0)){ 
+        g->grid[i][j] = "w";
+      }
+    }
+  }
+  return;
+}

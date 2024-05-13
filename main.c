@@ -23,10 +23,17 @@ int main(int argc, char *argv[]){
   noecho();
   start_color();
 
+  //texte
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   init_pair(2, COLOR_WHITE, COLOR_BLACK);
+  //mur
   init_pair(4, COLOR_BLACK, COLOR_MAGENTA);
+  //fruit
   init_pair(5, COLOR_BLACK, COLOR_GREEN);
+  //serpent
+  init_pair(7, COLOR_BLACK, COLOR_CYAN);
+  init_pair(8, COLOR_BLACK, COLOR_RED);
+  init_pair(9, COLOR_BLACK, COLOR_YELLOW);
   
   //on defini le delai de chaque etape
   halfdelay(delay);
@@ -54,8 +61,10 @@ int main(int argc, char *argv[]){
           //initialisation de la grille et demarrage du jeu
           grille * toto = grilleAllouer(length, width);
           grilleVider(toto);
-          gameLoopSnake(toto);
-          grilleDesallouer(toto);
+          gameMain(toto);
+          endwin();
+          printf("vous avez gagné!\n");
+          return EXIT_SUCCESS;
         }
         if (opt == 0){
           //fin du jeu, on endwin pour revenir au terminal
