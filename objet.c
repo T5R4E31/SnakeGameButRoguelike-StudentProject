@@ -11,19 +11,43 @@ objet * initObjet(){
 
 objet * serpentPeluche(objet * obj){
   obj->nom = "Serpent en Peluche";
-  obj->descr = "+1.2 au multiplicateur de score par fruit";
+  obj->descr = "+2 au multiplicateur de score par fruit";
   return obj;
 }
 
 objet * pomme(objet * obj){
   obj->nom = "Pomme";
-  obj->descr = "+1 vie, si le serpent meure, la vague recommence";
+  obj->descr = "+1 vie, si le serpent meure, la vague recommence, détruit à l'achat";
+  return obj;
+}
+
+objet * helium(objet * obj){
+  obj->nom = "Bouteille d'hélium rigolote";
+  obj->descr = "Passe à travers les murs internes à la prochaine vague, détruit à l'achat";
   return obj;
 }
 
 objet * caillou(objet * obj){
   obj->nom = "Caillou";
-  obj->descr = "Moins de mur à la prochaine vague, détruit à la prochaine vague";
+  obj->descr = "Moins de mur pour la prochaine vague, détruit à l'achat";
+  return obj;
+}
+
+objet * ticketLoterie(objet * obj){
+  obj->nom = "Ticket de Loterie";
+  obj->descr = "1 chance sur 2 de passer la prochaine vague, détruit à l'achat";
+  return obj;
+}
+
+objet * paquetChips(objet * obj){
+  obj->nom = "Paquet de Chips";
+  obj->descr = "+3 au score à chaque fruit";
+  return obj;
+}
+
+objet * calculatrice(objet * obj){
+  obj->nom = "Calculatrice";
+  obj->descr = "L'objectif de score diminue";
   return obj;
 }
 
@@ -81,15 +105,59 @@ void supprimerPosObjet(listObjet * l, int pos){
   return;
 }
 
-void printListObjet(listObjet * l){
-  int x = 10;
-  int y = 20;
+objet * retourneObjet(listObjet * l, int pos){
+  listObjet * tmp = l;
+  for (int i = 0; i<pos; i++){
+    if (l==NULL){
+      return initObjet();
+    }
+    tmp = tmp->prochain_objet;
+  }
+  return tmp->obj;
+}
+
+void printListObjet(listObjet * l, int x, int y){
   listObjet * tmp = l;
   move(y, x);
   while (tmp!=NULL){
-    move(++y, x);
+    y+=2;
+    move(y, x);
     printw(tmp->obj->nom);
     tmp = tmp->prochain_objet;
+  }
+  return;
+}
+
+int objCount(listObjet * l, objet * obj){
+  listObjet * temp = l;
+  int i = 0;
+  while (temp!=NULL){
+    if (!strcmp(temp->obj->nom, obj->nom)){
+      i++;
+    }
+    temp = temp->prochain_objet;
+  }
+  return i;
+}
+
+int listSize(listObjet * l){
+  listObjet * temp = l;
+  int i = 0;
+  while (temp!=NULL){
+    temp = temp->prochain_objet;
+    i++;
+  }
+  return i;
+}
+
+void detruireListObjet(listObjet * l){
+  listObjet * tmp = l;
+  listObjet * current_l = tmp;
+  while (current_l!=NULL){
+    free(current_l->obj);
+    tmp = tmp->prochain_objet;
+    free(current_l);
+    current_l = tmp;
   }
   return;
 }

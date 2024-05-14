@@ -19,6 +19,6 @@ int estFruitGrille(grille * g);
 void grilleRemplir(grille * g, serpent * serp);
 void grilleDesallouer(grille * g);
 void grilleRedessiner(grille * g);
-void grilleMurer(grille * g, int lvl);
+void grilleMurer(grille * g, int lvl, int less_wall);
 
 #endif 

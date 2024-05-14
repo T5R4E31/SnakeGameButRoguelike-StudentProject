@@ -8,7 +8,7 @@ main.o: main.c
 	gcc -Wall -c main.c
 
 grille.o: grille.c
-	gcc -Wall -lncurses -c grille.c
+	gcc -lncurses -c grille.c
 
 serpent.o: serpent.o
 	gcc -Wall -c serpent.c
@@ -17,7 +17,7 @@ liste_section.o: liste_section.c
 	gcc -Wall -c liste_section.c
 
 objet.o: objet.c 
-	gcc -Wall -lncurses -c objet.c
+	gcc -lncurses -c objet.c
 
 fonction_jeu_1_serpent.o:
-	gcc -Wall -lncurses -c fonction_jeu_1_serpent.c
+	gcc -lncurses -c fonction_jeu_1_serpent.c

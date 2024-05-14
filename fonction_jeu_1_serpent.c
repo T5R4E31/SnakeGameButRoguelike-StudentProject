@@ -5,10 +5,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #define MAX_WAVE 5
+#define POS_SERP_PEL 0
+#define POS_POM 1 
+#define POS_HELIUM 2
+#define POS_CAILLOU 3
+#define POS_TICKET 4
+#define POS_CHIPS 5
+#define POS_CALC 6
 
-int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, listObjet * itemPlayer){
+int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, listObjet * itemPlayer, int lvl, int less_wall, int intangible){
   int input = -1;
   int last_input = 'f';
   int score = 0;
@@ -19,7 +27,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
   serpent * player = malloc(sizeof(serpent));
   player->head = creerListSection();
   player->tete_serpent.x = 1;
-  player->tete_serpent.y = 1;
+  player->tete_serpent.y = 2;
   ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
 
   //on s'assure de vider la grille
@@ -27,7 +35,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
   //on re rempli la grille avec notre serpent actuel
   grilleRemplir(g, player);
   //on effectue le tirage pour le premier fruit
-  grilleMurer(g, 1);
+  grilleMurer(g, lvl, less_wall);
   grilleTirageFruit(g);
   while (input!='#'){
     //on prend l'input clavier de l'utilisateur
@@ -51,7 +59,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
         last_input = input;
         ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
         if (serpentMangeFruit(g, player)){
-          score += (add_fruit + 1) * mult_fruit;
+          score += (add_fruit + 1 + score/10) * mult_fruit;
           continue;
         }
         tmp = dernierListSection(player->head);
@@ -68,7 +76,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
         last_input = input;
         ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
         if (serpentMangeFruit(g, player)){ 
-          score += (add_fruit + 1) * mult_fruit;
+          score += (add_fruit + 1 + score/10) * mult_fruit;
           break;
         }
         tmp = dernierListSection(player->head);
@@ -85,7 +93,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
         last_input = input;
         ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
         if (serpentMangeFruit(g, player)){
-          score += (add_fruit + 1) * mult_fruit;
+          score += (add_fruit + 1 + score/10) * mult_fruit;
           break;
         }
         tmp = dernierListSection(player->head);
@@ -102,7 +110,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
         last_input = input;
         ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
         if (serpentMangeFruit(g, player)){
-          score += (add_fruit + 1) * mult_fruit; 
+          score += (add_fruit + 1 + score/10) * mult_fruit; 
           break;
         }
         tmp = dernierListSection(player->head);
@@ -144,7 +152,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
       return 1;
     }
 
-    if (!strcmp(g->grid[player->tete_serpent.x][player->tete_serpent.y], "w")){
+    if (!strcmp(g->grid[player->tete_serpent.x][player->tete_serpent.y], "w") && !intangible){
       desallouerListSection(player->head);
       player->head = NULL;
       free(player);
@@ -155,14 +163,18 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
     //on vide dans un premier temps la grille pour eviter les traces de serpent
     grilleVider(g);
 
-
+    if (!estFruitGrille(g)){
+      g->grid[g->fruit.x][g->fruit.y] = "f";
+    }
     //met le nouveau serpent dans la grille et l'affiche
     grilleRemplir(g, player);
     grilleRedessiner(g);
-
-    printListObjet(itemPlayer);
+    printListObjet(itemPlayer, 4*getmaxx(stdscr)/5, getmaxy(stdscr)/4);
+    move(30, 20);
     printw("Votre score : %d  ", score);
+    move(32, 20);
     printw("Objectif de cette manche : %d", objective);
+    move(34, 20);
 
     if (score >= objective){
       desallouerListSection(player->head);
@@ -243,34 +255,206 @@ int serpentMangeFruit(grille * g, serpent * serp){
   return 0;
 }
 
-void gameMain(grille * g){ 
-  int mult_fruit = 1;
-  int add_fruit = 0;
+void gameMain(grille * g, int mode_infini){ 
   int objective = 10;
-  
+  int vie = 1;
+  int less_wall = 0;
+  int intangible = 0;
+  int nb_max_vague = mode_infini == 0 ? MAX_WAVE : 65535;
+  listObjet * repertoire_obj = creerListObjet(serpentPeluche(initObjet()));
+  ajouterObjet(repertoire_obj, pomme(initObjet()));
+  ajouterObjet(repertoire_obj, helium(initObjet()));
+  ajouterObjet(repertoire_obj, caillou(initObjet()));
+  ajouterObjet(repertoire_obj, ticketLoterie(initObjet()));
+  ajouterObjet(repertoire_obj, paquetChips(initObjet()));
+  ajouterObjet(repertoire_obj, calculatrice(initObjet()));
   listObjet * itemPlayer = creerListObjet(serpentPeluche(initObjet()));
-  ajouterObjet(itemPlayer, pomme(initObjet()));
 
-
-  for (int i = 1; i<=MAX_WAVE; i++){
+  for (int i = 1; i<=nb_max_vague; i++){
     clear();
     move(getmaxy(stdscr)/2, getmaxx(stdscr)/2);
     printw("MANCHE %d/%d", i, MAX_WAVE);
     refresh();
     sleep(2);
-    if (gameLoopSnake(g, mult_fruit, add_fruit, objective, itemPlayer)){
+    objective += objective * 1.2 + 4 - (objCount(itemPlayer, retourneObjet(repertoire_obj, POS_CALC)) * 0.5 * objective);
+    if (gameLoopSnake(g, objCount(itemPlayer, retourneObjet(repertoire_obj, POS_SERP_PEL))*2, objCount(itemPlayer, retourneObjet(repertoire_obj, POS_CHIPS))*3, objective, itemPlayer, i, less_wall, intangible)){
       clear();
-      move(getmaxy(stdscr)/2, getmaxx(stdscr)/2);
+      vie--;
+      move(getmaxy(stdscr)/3, getmaxx(stdscr)/2 - 12);
       printw("VOUS AVEZ PERDU BOUUUUUH");
       refresh();
+      usleep(800*1000);
+      move(getmaxy(stdscr)/3 + 3, getmaxx(stdscr)/2 - 10);
+      printw("Vie restante : %5d", vie);
+      refresh();
       sleep(2);
-      return;
+      if (vie<=0){
+        detruireListObjet(itemPlayer);
+        detruireListObjet(repertoire_obj);
+        return;
+      }
+      i--;
+      grilleVoid(g);
+      continue;
     }
-    objective += objective * 1.5 + 4;
     grilleVoid(g);
+    ajouterObjet(itemPlayer, menuChoixObj(repertoire_obj));
+    intangible = 0;
+    less_wall = 0;
+
+    //fonction pour consommable
+    if (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_POM)) != -1){
+      vie += objCount(itemPlayer, retourneObjet(repertoire_obj, POS_POM));
+      while (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_POM)) != -1){
+        supprimerPosObjet(itemPlayer, posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_POM)));
+      }
+    }
+
+    if (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_HELIUM)) != -1){
+      intangible = 1;
+      while (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_HELIUM)) != -1){
+        supprimerPosObjet(itemPlayer, posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_HELIUM)));
+      }
+    }
+
+    if (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_CAILLOU)) != -1){
+      less_wall = 1;
+      while (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_CAILLOU)) != -1){
+        supprimerPosObjet(itemPlayer, posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_CAILLOU)));
+      }
+    }
+
+    if (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_TICKET)) != -1){
+      if (rand()%2 == 1) i++; continue;
+      while (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_TICKET)) != -1){
+        supprimerPosObjet(itemPlayer, posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_TICKET)));
+      }
+    }
   }
-  if (gameLoopSnake(g, mult_fruit, add_fruit, objective, itemPlayer)){
-    return;
+
+  if (mode_infini == 0){
+    if (menuChoixModeInfini(itemPlayer)){
+      gameMain(g, 1);
+    }
   }
+
+  detruireListObjet(itemPlayer);
+  detruireListObjet(repertoire_obj);
+  
   return;
+}
+void printObj(objet * obj, int x, int y){
+  move(y, x);
+  printw(obj->nom);
+  move (y+2, x);
+  printw(obj->descr);
+  attron(COLOR_PAIR(2));
+  return;
+}
+
+objet * menuChoixObj(listObjet * repertoire){
+  srand(time(NULL));
+  int x = getmaxx(stdscr)/2;
+  int y = 0;
+  int opt = 0;
+  objet * obj1 = retourneObjet(repertoire, rand()%listSize(repertoire));
+  objet * obj2 = retourneObjet(repertoire, rand()%listSize(repertoire));
+  objet * obj3 = retourneObjet(repertoire, rand()%listSize(repertoire));
+  char input = 0;
+  clear();
+  while (input!=' '){
+    move(y, x-16);
+    printw("Choississez votre prochain objet!");
+    input = getch();
+    switch (input){
+      case 'z':
+        opt = opt - 1;
+        if (opt < 0){
+          opt = 2;
+        }
+        break;
+      case 's':
+        opt = (opt + 1)%3;
+        break;
+    }
+    switch (opt){
+      case 0:
+        attron(COLOR_PAIR(1));
+        printObj(obj1, getmaxx(stdscr)/3, getmaxy(stdscr)/5);
+        printObj(obj2, getmaxx(stdscr)/3, 2*getmaxy(stdscr)/5);
+        printObj(obj3, getmaxx(stdscr)/3, 3*getmaxy(stdscr)/5);
+        break;
+      case 1:
+        printObj(obj1, getmaxx(stdscr)/3, getmaxy(stdscr)/5);
+        attron(COLOR_PAIR(1));
+        printObj(obj2, getmaxx(stdscr)/3, 2*getmaxy(stdscr)/5);
+        printObj(obj3, getmaxx(stdscr)/3, 3*getmaxy(stdscr)/5);
+        break;
+      case 2:
+        printObj(obj1, getmaxx(stdscr)/3, getmaxy(stdscr)/5);
+        printObj(obj2, getmaxx(stdscr)/3, 2*getmaxy(stdscr)/5);
+        attron(COLOR_PAIR(1));
+        printObj(obj3, getmaxx(stdscr)/3, 3*getmaxy(stdscr)/5);
+        break;
+    }
+    refresh();
+  }
+  
+  switch (opt){
+    case 0:
+      return obj1;
+      break;
+    case 1:
+      return obj2;
+      break;
+    case 2:
+      return obj3;
+      break;
+  }
+  return obj1;
+}
+
+int menuChoixModeInfini(listObjet * itemPlayer){
+  clear();
+  int input = 0;
+  int opt = 0;
+  while (input!=' '){
+    move(getmaxy(stdscr)/2, getmaxx(stdscr)/5 - 14);
+    printw("Bravo vous avez fini le jeu!");
+    move(getmaxy(stdscr)/2 + 2, getmaxx(stdscr)/5 - 6);
+    printw("Mode infini?");
+    input = getch();
+    switch (input){
+      case 'q':
+        opt = (opt + 1)%2;
+        break;
+      case 'd':
+        opt = (opt + 1)%2;
+        break;
+    }
+
+    switch (opt){
+      case 0:
+        move(getmaxy(stdscr)/2, 2*getmaxx(stdscr)/5 - 4);
+        attron(COLOR_PAIR(1));
+        printw("OUIII!!!!");
+        attron(COLOR_PAIR(2));
+        move(getmaxy(stdscr)/2, 3*getmaxx(stdscr)/5 - 10);
+        printw("non... (je suis nul)");
+        break;
+      case 1:
+        move(getmaxy(stdscr)/2, 2*getmaxx(stdscr)/5 - 4);
+        printw("OUIII!!!!");
+        attron(COLOR_PAIR(1));
+        move(getmaxy(stdscr)/2, 3*getmaxx(stdscr)/5 - 10);
+        printw("non... (je suis nul)");
+        attron(COLOR_PAIR(2));
+        break;
+    }
+    move(getmaxy(stdscr)/4, 4*getmaxx(stdscr)/5);
+    printw("Vos objets :");
+    printListObjet(itemPlayer, 4*getmaxx(stdscr)/5, getmaxy(stdscr)/4 + 3);
+  }
+
+  return 1 - opt;
 }

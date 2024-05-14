@@ -68,7 +68,7 @@ void grilleTirageFruit(grille * g){
   int min_pos = minTailleGrille(g);
   int pos_x = 2 + rand() % (min_pos-3);
   int pos_y = 2 + rand() % (min_pos-3);
-  while (strcmp(g->grid[pos_x][pos_y], "serp") == 0 && strcmp(g->grid[pos_x][pos_y], "w") == 0){
+  while (!(strcmp(g->grid[pos_x][pos_y], "serp")) || !(strcmp(g->grid[pos_x][pos_y], "w"))){
     pos_x = 2 + rand() %(g->n-3);
     pos_y = 2 + rand() % (g->m-3);
   }
@@ -180,12 +180,13 @@ void grilleRedessiner(grille * g){
 }
 
 
-void grilleMurer(grille * g, int lvl){
+void grilleMurer(grille * g, int lvl, int less_wall){
   if (g == NULL) return;
+  float wall_coef = less_wall == 1 ? 0.2 : 1;
   srand(time(NULL));
   for (int i = 0; i<g->n; i++){
     for (int j = 0; j<g->m; j++){
-      if (rand() % 100 <= (lvl*1.05 + 3) && (strcmp(g->grid[i][j], "serp") != 0)){ 
+      if (rand() % 100 <= (lvl*1.05 + 1)*wall_coef && (strcmp(g->grid[i][j], "serp") != 0)){ 
         g->grid[i][j] = "w";
       }
     }

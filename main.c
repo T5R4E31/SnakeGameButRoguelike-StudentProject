@@ -61,7 +61,7 @@ int main(int argc, char *argv[]){
           //initialisation de la grille et demarrage du jeu
           grille * toto = grilleAllouer(length, width);
           grilleVider(toto);
-          gameMain(toto);
+          gameMain(toto, 0);
           endwin();
           printf("vous avez gagné!\n");
           return EXIT_SUCCESS;
