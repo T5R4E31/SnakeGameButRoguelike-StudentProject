@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <time.h>
+#include <sys/time.h>
 
 #define MAX_WAVE 5
 #define POS_SERP_PEL 0
@@ -16,11 +16,15 @@
 #define POS_CHIPS 5
 #define POS_CALC 6
 
+#define DELAY 1
+
 int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, listObjet * itemPlayer, int lvl, int less_wall, int intangible){
   int input = -1;
   int last_input = 'f';
   int score = 0;
   listSection * tmp = malloc(sizeof(listSection));
+  struct timeval start;
+  struct timeval stop;
   
   //creation d'un serpent avec une position et une couleur arbitraire
   //a rajouter : position aleatoire et couleur aleatoire
@@ -141,7 +145,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
       //touche p pour quitter
       //a rajouter : menu pour les information de gameplay
       case 'p':
-        return 1;
+        return 2;
         break;
       default:
         if (last_input == 'f'){
@@ -153,9 +157,15 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
         input = last_input;
         continue;
     }
-    
-    input = getch();
+   
 
+    //on etudie la duree de getch pour que chaque boucle ait la meme duree
+    if (((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec)) <= DELAY*100000){
+      usleep((DELAY*100000 - ((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec))));
+    }
+    gettimeofday(&start, NULL);
+    input = getch();
+    gettimeofday(&stop, NULL);
 
     //si le joueur touche un mur, on retourne a l'ecran titre (sans ca le programme segfault)
     if (player->tete_serpent.x == -1 || player->tete_serpent.y == 0 || player->tete_serpent.x == g->n || player->tete_serpent.y == g->m-1){
@@ -198,6 +208,11 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
       return 0;
     }
     //fflush() s'assure de bien afficher tout ce qu'il y a dans le cache
+    
+    if (((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec)) <= DELAY*100000){
+      usleep(DELAY*100000 - ((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec)));
+    }
+
     fflush(stdout);
 
   }
@@ -322,8 +337,6 @@ void printGameMenuCinematic(){
   attron(COLOR_PAIR(2));
   printw("Quitter");
   refresh();
-  usleep(500*1000);
-  move(y+5, x);
   return;
 }
 
@@ -349,6 +362,7 @@ void gameMain(grille * g, int mode_infini){
   int less_wall = 0;
   int intangible = 0;
   int nb_max_vague = mode_infini == 0 ? MAX_WAVE : 65535;
+  int result_game;
   //initialisation du repertoire de tout les objets du jeu
   listObjet * repertoire_obj = creerListObjet(serpentPeluche(initObjet()));
   ajouterObjet(repertoire_obj, pomme(initObjet()));
@@ -362,42 +376,51 @@ void gameMain(grille * g, int mode_infini){
   for (int i = 1; i<=nb_max_vague; i++){
     //menu de debut de manche
     clear();
+    flushinp();
     move(getmaxy(stdscr)/2, getmaxx(stdscr)/2-5);
     printw("MANCHE %d/%d", i, nb_max_vague);
     refresh();
-    sleep(2);
+    usleep(700*1000);
     move(getmaxy(stdscr)/3 + 3, getmaxx(stdscr)/2 - 10);
     printw("Vie restante : %5d", vie);
     refresh();
-    sleep(2);
-    //actualisation de l'objectif
-    objective += objective * 1.2 + 4 - (objCount(itemPlayer, retourneObjet(repertoire_obj, POS_CALC)) * 0.5 * objective);
+    sleep(1);
     //test de la boucle de jeu
-    if (gameLoopSnake(g, objCount(itemPlayer, retourneObjet(repertoire_obj, POS_SERP_PEL))*2, objCount(itemPlayer, retourneObjet(repertoire_obj, POS_CHIPS))*3, objective, itemPlayer, i, less_wall, intangible)){
+    result_game = gameLoopSnake(g, objCount(itemPlayer, retourneObjet(repertoire_obj, POS_SERP_PEL))*2, objCount(itemPlayer, retourneObjet(repertoire_obj, POS_CHIPS))*3, objective, itemPlayer, i, less_wall, intangible);
+    flushinp();
+    if (result_game == 1){
       //ici, on a perdu, on diminue la vie et on recommence cette manche si il reste des vies
       clear();
       vie--;
       move(getmaxy(stdscr)/3, getmaxx(stdscr)/2 - 12);
       printw("VOUS AVEZ PERDU BOUUUUUH");
       refresh();
-      sleep(1);
+      usleep(700*1000);
       move(getmaxy(stdscr)/3 + 3, getmaxx(stdscr)/2 - 10);
       printw("Vies restantes : %5d", vie);
       refresh();
       sleep(2);
       if (vie<=0){
         //sinon, on termine
-        detruireListObjet(itemPlayer);
-        detruireListObjet(repertoire_obj);
+        //detruireListObjet(itemPlayer);
+        //detruireListObjet(repertoire_obj); erreur de free
         return;
       }
       //on retourne en arrière d'une itération, pour continue et revenir à celle ci
       i--;
       continue;
     }
+    if (result_game == 2){
+      clear();
+      //detruireListObjet(itemPlayer);
+      //detruireListObjet(repertoire_obj); erreur de free
+      return;
+    }
     ajouterObjet(itemPlayer, menuChoixObj(repertoire_obj));
+    //actualisation des variables de jeu
     intangible = 0;
     less_wall = 0;
+    objective += objective * 1.2 + 4 - (objCount(itemPlayer, retourneObjet(repertoire_obj, POS_CALC)) * 0.5 * objective);
 
     //fonction pour consommable
     if (posObjet(itemPlayer, retourneObjet(repertoire_obj, POS_POM)) != -1){
@@ -454,7 +477,6 @@ void printObj(objet * obj, int x, int y){
 //3 objets sont tiré au hasard dans le repertoire d'objet, on les propose au joueur et celui ci recupere
 //dans la liste l'objet voulu
 objet * menuChoixObj(listObjet * repertoire){
-  srand(time(NULL));
   int x = getmaxx(stdscr)/2;
   int y = 0;
   int opt = 0;

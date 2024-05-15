@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <time.h>
 
 #include "grille.h"
 #include "fonction_jeu.h"
 
-#define DELAY 2
+#define DELAY 1
 
 int main(int argc, char *argv[]){
   //on veut strictement 4 argument en plus de ./main
@@ -22,6 +23,8 @@ int main(int argc, char *argv[]){
   keypad(stdscr, TRUE);
   noecho();
   start_color();
+
+  srand(time(NULL));
 
   //texte
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
@@ -45,6 +48,7 @@ int main(int argc, char *argv[]){
   while (input!='a'){
     printGameMenu(opt);
     fflush(0);
+    flushinp();
     input = getch();
     if (input == -1){
       continue;
