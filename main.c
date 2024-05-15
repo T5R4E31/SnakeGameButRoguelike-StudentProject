@@ -35,7 +35,7 @@ int main(int argc, char *argv[]){
   init_pair(5, COLOR_BLACK, COLOR_GREEN);
   //serpent
   init_pair(7, COLOR_BLACK, COLOR_CYAN);
-  init_pair(8, COLOR_BLACK, COLOR_RED);
+  init_pair(8, COLOR_RED, COLOR_RED);
   init_pair(9, COLOR_BLACK, COLOR_YELLOW);
   
   //on defini le delai de chaque etape

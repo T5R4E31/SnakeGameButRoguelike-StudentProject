@@ -235,11 +235,11 @@ void printGameMenu(int opt){
   move(y+2, x);
   printw("  | |  | |_| || (_(_)   | (_(_)| `\\| || (_(_)| |/'/'   | ( (_)| (_) ||     || (_(_)");
   move(y+3, x);
-  printw(" | |  |  _  ||  _)_    `\\__ \\ | , ` ||  _)_ | , <     | |___ |  _  || (_) ||  _)_ ");
+  printw("  | |  |  _  ||  _)_    `\\__ \\ | , ` ||  _)_ | , <     | |___ |  _  || (_) ||  _)_ ");
   move(y+4, x);
   printw("  | |  | | | || (_( )   ( )_) || |`\\ || (_( )| |\\`\\    | (_, )| | | || | | || (_( ) ");
   move(y+5, x);
-  printw(" (_)  (_) (_)(____/'   `\\____)(_) (_)(____/'(_) (_)   (____/'(_) (_)(_) (_)(____/'");
+  printw("  (_)  (_) (_)(____/'   `\\____)(_) (_)(____/'(_) (_)   (____/'(_) (_)(_) (_)(____/'");
   
   y = y+6;
   x = getmaxx(stdscr)/2;
@@ -303,11 +303,11 @@ void printGameMenuCinematic(){
   move(y+2, x);
   printw("  | |  | |_| || (_(_)   | (_(_)| `\\| || (_(_)| |/'/'   | ( (_)| (_) ||     || (_(_)");
   move(y+3, x);
-  printw(" | |  |  _  ||  _)_    `\\__ \\ | , ` ||  _)_ | , <     | |___ |  _  || (_) ||  _)_ ");
+  printw("  | |  |  _  ||  _)_    `\\__ \\ | , ` ||  _)_ | , <     | |___ |  _  || (_) ||  _)_ ");
   move(y+4, x);
   printw("  | |  | | | || (_( )   ( )_) || |`\\ || (_( )| |\\`\\    | (_, )| | | || | | || (_( ) ");
   move(y+5, x);
-  printw(" (_)  (_) (_)(____/'   `\\____)(_) (_)(____/'(_) (_)   (____/'(_) (_)(_) (_)(____/'");
+  printw("  (_)  (_) (_)(____/'   `\\____)(_) (_)(____/'(_) (_)   (____/'(_) (_)(_) (_)(____/'");
   refresh();
   sleep(2);
   y = y+6;
@@ -358,7 +358,7 @@ int serpentMangeFruit(grille * g, serpent * serp){
 //si perdu, on affiche l'ecran de fin de partie. Si le joueur possede plusieurs vie, on continue la vague actuelle
 void gameMain(grille * g, int mode_infini){ 
   int objective = 3;
-  int vie = 3;
+  int vie = 2;
   int less_wall = 0;
   int intangible = 0;
   int nb_max_vague = mode_infini == 0 ? MAX_WAVE : 65535;
@@ -392,20 +392,32 @@ void gameMain(grille * g, int mode_infini){
       //ici, on a perdu, on diminue la vie et on recommence cette manche si il reste des vies
       clear();
       vie--;
+      if (vie<=-1){
+        //on termine si on a -1 vie
+        sleep(1);
+        clear();
+        for (int n = 0; n<getmaxx(stdscr); n++){
+          for (int m = 0; m<getmaxy(stdscr); m++){
+            move(m, n);
+            attron(COLOR_PAIR(8));
+            printw(" ");
+          }
+        }
+        refresh();
+        sleep(1);
+        attron(COLOR_PAIR(1));
+        //detruireListObjet(itemPlayer);
+        //detruireListObjet(repertoire_obj); erreur de free
+        return;
+      }
       move(getmaxy(stdscr)/3, getmaxx(stdscr)/2 - 12);
       printw("VOUS AVEZ PERDU BOUUUUUH");
       refresh();
       usleep(700*1000);
       move(getmaxy(stdscr)/3 + 3, getmaxx(stdscr)/2 - 10);
-      printw("Vies restantes : %5d", vie);
+      printw("Vies restantes : %5d", (vie <= -1 ? 0 : vie));
       refresh();
       sleep(2);
-      if (vie<=0){
-        //sinon, on termine
-        //detruireListObjet(itemPlayer);
-        //detruireListObjet(repertoire_obj); erreur de free
-        return;
-      }
       //on retourne en arrière d'une itération, pour continue et revenir à celle ci
       i--;
       continue;
@@ -416,6 +428,7 @@ void gameMain(grille * g, int mode_infini){
       //detruireListObjet(repertoire_obj); erreur de free
       return;
     }
+    usleep(300*1000);
     ajouterObjet(itemPlayer, menuChoixObj(repertoire_obj));
     //actualisation des variables de jeu
     intangible = 0;
@@ -478,8 +491,10 @@ void printObj(objet * obj, int x, int y){
 //dans la liste l'objet voulu
 objet * menuChoixObj(listObjet * repertoire){
   int x = getmaxx(stdscr)/2;
-  int y = 0;
+  int y = 5;
   int opt = 0;
+  //variable pour l'animation d'arrive au menu
+  int first_look = 1;
   objet * obj1 = retourneObjet(repertoire, rand()%listSize(repertoire));
   objet * obj2 = retourneObjet(repertoire, rand()%listSize(repertoire));
   objet * obj3 = retourneObjet(repertoire, rand()%listSize(repertoire));
@@ -502,6 +517,20 @@ objet * menuChoixObj(listObjet * repertoire){
     }
     switch (opt){
       case 0:
+        if (first_look){
+          first_look = 0;
+          attron(COLOR_PAIR(1));
+          usleep(500*1000);
+          printObj(obj1, getmaxx(stdscr)/3, getmaxy(stdscr)/5);
+          refresh();
+          usleep(500*1000);
+          printObj(obj2, getmaxx(stdscr)/3, 2*getmaxy(stdscr)/5);
+          refresh();
+          usleep(500*1000);
+          printObj(obj3, getmaxx(stdscr)/3, 3*getmaxy(stdscr)/5);
+          refresh();
+          break;
+        }
         attron(COLOR_PAIR(1));
         printObj(obj1, getmaxx(stdscr)/3, getmaxy(stdscr)/5);
         printObj(obj2, getmaxx(stdscr)/3, 2*getmaxy(stdscr)/5);

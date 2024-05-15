@@ -1,0 +1,3 @@
+L'url pour lancer demo.cast (valable 7 jour, sinon il faudra installer asciinema)
+
+https://asciinema.org/a/r84ZwJmVVOqtQ9wc4hJ4Q85q2
