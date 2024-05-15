@@ -44,6 +44,7 @@ void grilleVider(grille * g){
   return;
 }
 
+//vide entierement la grille,
 void grilleVoid(grille * g){
   int i, j;
   if (g == NULL) return;
@@ -179,14 +180,15 @@ void grilleRedessiner(grille * g){
   move(y+1, x);
 }
 
-
+//generation des murs aléatoire au milieu de la grille
 void grilleMurer(grille * g, int lvl, int less_wall){
   if (g == NULL) return;
+  //si on a le caillou, on a 80% moins de murs
   float wall_coef = less_wall == 1 ? 0.2 : 1;
   srand(time(NULL));
   for (int i = 0; i<g->n; i++){
     for (int j = 0; j<g->m; j++){
-      if (rand() % 100 <= (lvl*1.05 + 1)*wall_coef && (strcmp(g->grid[i][j], "serp") != 0)){ 
+      if (rand() % 100 <= (lvl*1.2 + 1)*wall_coef && (strcmp(g->grid[i][j], "serp") != 0)){ 
         g->grid[i][j] = "w";
       }
     }

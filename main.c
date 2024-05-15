@@ -39,8 +39,9 @@ int main(int argc, char *argv[]){
   halfdelay(delay);
 
   //on initialise le choix possible du joueur dans le menu
-  int opt = 1;
+  int opt = 0;
   int input = 0;
+  printGameMenuCinematic();
   while (input!='a'){
     printGameMenu(opt);
     fflush(0);
@@ -50,23 +51,30 @@ int main(int argc, char *argv[]){
     }
     switch(input){
       case 'z':
-        opt = (opt + 1)%2;
+        opt = (opt - 1);
+        if (opt < 0){
+          opt = 2;
+        }
         break;
       case 's':
-        opt = (opt + 1)%2;
+        opt = (opt + 1)%3;
         break;
       case ' ':
         //si le joueur appuie sur espace, on verifie sur quel bouton il est 
-        if (opt == 1){
+        if (opt == 0){
           //initialisation de la grille et demarrage du jeu
           grille * toto = grilleAllouer(length, width);
           grilleVider(toto);
           gameMain(toto, 0);
-          endwin();
-          printf("vous avez gagné!\n");
-          return EXIT_SUCCESS;
+          grilleVoid(toto);
+          grilleDesallouer(toto);
+          continue;
         }
-        if (opt == 0){
+        if (opt == 1){
+          printTutoriel();
+          continue;
+        }
+        if (opt == 2){
           //fin du jeu, on endwin pour revenir au terminal
           endwin();
           return EXIT_SUCCESS;

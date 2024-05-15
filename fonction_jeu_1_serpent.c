@@ -31,7 +31,24 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
   ajouterSectionTete(player->head, creerSection(1, 45, player->tete_serpent));
 
   //on s'assure de vider la grille
-  grilleVider(g);
+  grilleVoid(g);
+
+  //cinematique de demarrage
+  grilleRedessiner(g);
+  refresh();
+  usleep(500*1000);
+  printListObjet(itemPlayer, 4*getmaxx(stdscr)/5, getmaxy(stdscr)/4);
+  refresh();
+  usleep(300*1000);
+  move(30, 20);
+  printw("Votre score : %d  ", score);
+  refresh();
+  usleep(300*1000);
+  move(32, 20);
+  printw("Objectif de cette manche : %d", objective);
+  refresh();
+  usleep(300*1000);
+
   //on re rempli la grille avec notre serpent actuel
   grilleRemplir(g, player);
   //on effectue le tirage pour le premier fruit
@@ -39,6 +56,12 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
   grilleTirageFruit(g);
   while (input!='#'){
     //on prend l'input clavier de l'utilisateur
+    printListObjet(itemPlayer, 4*getmaxx(stdscr)/5, getmaxy(stdscr)/4);
+    move(30, 20);
+    printw("Votre score : %d  ", score);
+    move(32, 20);
+    printw("Objectif de cette manche : %d", objective);
+
     switch (input){
       //deplacement de base de tout jeu video
       //on deplace la tete du serpent en fonction des entrees joueurs
@@ -46,8 +69,6 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
       //afin de deplacer d'une case le serpent
       //si on a mange un fruit, on ne fait pas disparaitre la derniere case 
       //on fait cela pour chaque input possible
-
-
 
       case 'z':
         if (last_input == 's'){
@@ -169,13 +190,7 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
     //met le nouveau serpent dans la grille et l'affiche
     grilleRemplir(g, player);
     grilleRedessiner(g);
-    printListObjet(itemPlayer, 4*getmaxx(stdscr)/5, getmaxy(stdscr)/4);
-    move(30, 20);
-    printw("Votre score : %d  ", score);
-    move(32, 20);
-    printw("Objectif de cette manche : %d", objective);
-    move(34, 20);
-
+    //si on atteint l'objectif, c'est bon
     if (score >= objective){
       desallouerListSection(player->head);
       player->head = NULL;
@@ -223,25 +238,93 @@ void printGameMenu(int opt){
   y = y+5;
   x = x - 7/2;
   switch (opt){
-    case 1:
-      move(y+1, x);
-      attron(COLOR_PAIR(1));
-      printw("Jouer!!");
-      move(y+3, x);
-      attron(COLOR_PAIR(2));
-      printw("Quitter");
-      break;
-      ;;
     case 0:
       move(y+1, x);
+      attron(COLOR_PAIR(1));
+      printw("Jouer!!");
+      move(y+3, x);
+      attron(COLOR_PAIR(2));
+      printw("Tutoriel");
+      move(y+5, x);
+      attron(COLOR_PAIR(2));
+      printw("Quitter");
+      break;
+    case 1:
+      move(y+1, x);
       attron(COLOR_PAIR(2));
       printw("Jouer!!");
       move(y+3, x);
       attron(COLOR_PAIR(1));
+      printw("Tutoriel");
+      move(y+5, x);
+      attron(COLOR_PAIR(2));
       printw("Quitter");
       break;
-      ;;
+    case 2:
+      move(y+1, x);
+      attron(COLOR_PAIR(2));
+      printw("Jouer!!");
+      move(y+3, x);
+      attron(COLOR_PAIR(2));
+      printw("Tutoriel");
+      move(y+5, x);
+      attron(COLOR_PAIR(1));
+      printw("Quitter");
+      break;
   }
+}
+
+//affiche la cinématique de début de jeu
+void printGameMenuCinematic(){
+  clear();
+  int x, y;
+  x = getmaxx(stdscr)/2 - 78/2;
+  y = getmaxy(stdscr)/3;
+  move(y, x);
+  attron(COLOR_PAIR(2));
+  printw(" _____  _   _  ___       ___    _   _  ___    _   _     ___    _____         ___ ");
+  move(y+1, x);
+  printw("(_   _)( ) ( )(  _`\\    (  _`\\ ( ) ( )(  _`\\ ( ) ( )   (  _`\\ (  _  )/'\\_/`\\(  _`\\ ");
+  move(y+2, x);
+  printw("  | |  | |_| || (_(_)   | (_(_)| `\\| || (_(_)| |/'/'   | ( (_)| (_) ||     || (_(_)");
+  move(y+3, x);
+  printw(" | |  |  _  ||  _)_    `\\__ \\ | , ` ||  _)_ | , <     | |___ |  _  || (_) ||  _)_ ");
+  move(y+4, x);
+  printw("  | |  | | | || (_( )   ( )_) || |`\\ || (_( )| |\\`\\    | (_, )| | | || | | || (_( ) ");
+  move(y+5, x);
+  printw(" (_)  (_) (_)(____/'   `\\____)(_) (_)(____/'(_) (_)   (____/'(_) (_)(_) (_)(____/'");
+  refresh();
+  sleep(2);
+  y = y+6;
+  x = getmaxx(stdscr)/2;
+  move(y, x - 30/2);
+  printw("Programme par : Kylian Maouchi");
+  move(y+1, x - 36/2);
+  printw("Appuyez sur espace pour selectionner");
+  move(y+2, x - 44/2);
+  printw("Utilisez 'z' et 's' pour choisir une option!");
+  move(y+3, x);
+  refresh();
+  sleep(2);
+  y = y+5;
+  x = x - 7/2;
+  move(y+1, x);
+  attron(COLOR_PAIR(1));
+  printw("Jouer!!");
+  refresh();
+  usleep(500*1000);
+  move(y+3, x);
+  attron(COLOR_PAIR(2));
+  printw("Tutoriel");
+  refresh();
+  usleep(500*1000);
+  move(y+5, x);
+  attron(COLOR_PAIR(2));
+  printw("Quitter");
+  refresh();
+  usleep(500*1000);
+  move(y+5, x);
+  return;
 }
 
 //si la tete du serpent est sur un fruit, on le fait disparaitre et on en genere un nouveau
@@ -255,12 +338,18 @@ int serpentMangeFruit(grille * g, serpent * serp){
   return 0;
 }
 
+//fonction de gestion du corps du jeu 
+//on défini plusieurs variable en fonction des objets tenu par le joueur 
+//a chaque boucle, on lance la fonction gameLoopSnake et on evalue son resultat (vague reussi ou rate)
+//si reussi, on lance la selection d'objet et on active les objets a une utilisation
+//si perdu, on affiche l'ecran de fin de partie. Si le joueur possede plusieurs vie, on continue la vague actuelle
 void gameMain(grille * g, int mode_infini){ 
-  int objective = 10;
-  int vie = 1;
+  int objective = 3;
+  int vie = 3;
   int less_wall = 0;
   int intangible = 0;
   int nb_max_vague = mode_infini == 0 ? MAX_WAVE : 65535;
+  //initialisation du repertoire de tout les objets du jeu
   listObjet * repertoire_obj = creerListObjet(serpentPeluche(initObjet()));
   ajouterObjet(repertoire_obj, pomme(initObjet()));
   ajouterObjet(repertoire_obj, helium(initObjet()));
@@ -271,33 +360,41 @@ void gameMain(grille * g, int mode_infini){
   listObjet * itemPlayer = creerListObjet(serpentPeluche(initObjet()));
 
   for (int i = 1; i<=nb_max_vague; i++){
+    //menu de debut de manche
     clear();
-    move(getmaxy(stdscr)/2, getmaxx(stdscr)/2);
-    printw("MANCHE %d/%d", i, MAX_WAVE);
+    move(getmaxy(stdscr)/2, getmaxx(stdscr)/2-5);
+    printw("MANCHE %d/%d", i, nb_max_vague);
     refresh();
     sleep(2);
+    move(getmaxy(stdscr)/3 + 3, getmaxx(stdscr)/2 - 10);
+    printw("Vie restante : %5d", vie);
+    refresh();
+    sleep(2);
+    //actualisation de l'objectif
     objective += objective * 1.2 + 4 - (objCount(itemPlayer, retourneObjet(repertoire_obj, POS_CALC)) * 0.5 * objective);
+    //test de la boucle de jeu
     if (gameLoopSnake(g, objCount(itemPlayer, retourneObjet(repertoire_obj, POS_SERP_PEL))*2, objCount(itemPlayer, retourneObjet(repertoire_obj, POS_CHIPS))*3, objective, itemPlayer, i, less_wall, intangible)){
+      //ici, on a perdu, on diminue la vie et on recommence cette manche si il reste des vies
       clear();
       vie--;
       move(getmaxy(stdscr)/3, getmaxx(stdscr)/2 - 12);
       printw("VOUS AVEZ PERDU BOUUUUUH");
       refresh();
-      usleep(800*1000);
+      sleep(1);
       move(getmaxy(stdscr)/3 + 3, getmaxx(stdscr)/2 - 10);
-      printw("Vie restante : %5d", vie);
+      printw("Vies restantes : %5d", vie);
       refresh();
       sleep(2);
       if (vie<=0){
+        //sinon, on termine
         detruireListObjet(itemPlayer);
         detruireListObjet(repertoire_obj);
         return;
       }
+      //on retourne en arrière d'une itération, pour continue et revenir à celle ci
       i--;
-      grilleVoid(g);
       continue;
     }
-    grilleVoid(g);
     ajouterObjet(itemPlayer, menuChoixObj(repertoire_obj));
     intangible = 0;
     less_wall = 0;
@@ -343,6 +440,8 @@ void gameMain(grille * g, int mode_infini){
   
   return;
 }
+
+//fonction d'affichage d'objet indépendant
 void printObj(objet * obj, int x, int y){
   move(y, x);
   printw(obj->nom);
@@ -352,6 +451,8 @@ void printObj(objet * obj, int x, int y){
   return;
 }
 
+//3 objets sont tiré au hasard dans le repertoire d'objet, on les propose au joueur et celui ci recupere
+//dans la liste l'objet voulu
 objet * menuChoixObj(listObjet * repertoire){
   srand(time(NULL));
   int x = getmaxx(stdscr)/2;
@@ -414,6 +515,7 @@ objet * menuChoixObj(listObjet * repertoire){
   return obj1;
 }
 
+//choix du mode infini, si oui, alors on relance gameMenu en mode infini
 int menuChoixModeInfini(listObjet * itemPlayer){
   clear();
   int input = 0;
@@ -421,8 +523,8 @@ int menuChoixModeInfini(listObjet * itemPlayer){
   while (input!=' '){
     move(getmaxy(stdscr)/2, getmaxx(stdscr)/5 - 14);
     printw("Bravo vous avez fini le jeu!");
-    move(getmaxy(stdscr)/2 + 2, getmaxx(stdscr)/5 - 6);
-    printw("Mode infini?");
+    move(getmaxy(stdscr)/2 + 2, getmaxx(stdscr)/5 - 17);
+    printw("Mode infini? (objet non conservé !)");
     input = getch();
     switch (input){
       case 'q':
@@ -457,4 +559,56 @@ int menuChoixModeInfini(listObjet * itemPlayer){
   }
 
   return 1 - opt;
+}
+
+//affichage de l'option tutoriel
+void printTutoriel(){
+  clear();
+  int x = getmaxx(stdscr)/2;
+  int y = getmaxy(stdscr)/5;
+  move(y, x-15);
+  printw("Bienvenue dans le jeu du Snek!!");
+  y+=3;
+  move(y, x-25);
+  refresh();
+  sleep(1);
+  printw("Dans ce jeu, vous jouerez au jeu classique du snake");
+  y++;
+  move(y, x-19);
+  printw("En vous déplaçant avec les touches zqsd");
+  y++;
+  move(y, x-24);
+  printw("Appuyez sur 'p' pendant une partie pour la quitter");
+  y++;
+  move(y, x-24);
+  printw("Mais des murs apparaissent au milieu du terrain !");
+  y+=2;
+  refresh();
+  sleep(2);
+  move(y, x-23);
+  printw("Le jeu se compose de vague, battez les 5 vagues");
+  y++;
+  move(y, x-23);
+  printw("En atteignant le score nécessaire pour gagner !");
+  y+=2;
+  refresh();
+  sleep(2);
+  move(y, x-29);
+  printw("3 objets aléatoires vous seront donné à chaque fin de manche");
+  y++;
+  move(y, x-31);
+  printw("La description de ceux-ci sont écris en dessous, bonne chance !");
+  y+=7;
+  move(y, x-19);
+  refresh();
+  sleep(3);
+  attron(COLOR_PAIR(1));
+  printw("Appuyez sur espace pour quitter le menu");
+  attron(COLOR_PAIR(2));
+  refresh();
+  int input = 0;
+  while (input!=' '){
+    input = getch(); 
+  }
+  return;
 }
