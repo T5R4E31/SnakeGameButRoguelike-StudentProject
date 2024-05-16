@@ -160,8 +160,8 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
    
 
     //on etudie la duree de getch pour que chaque boucle ait la meme duree
-    if (((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec)) <= DELAY*10000){
-      usleep((DELAY*10000 - ((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec))));
+    if (((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec)) <= DELAY*100000){
+      usleep((DELAY*100000 - ((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec))));
     }
     gettimeofday(&start, NULL);
     input = getch();
@@ -209,9 +209,6 @@ int gameLoopSnake(grille * g, int mult_fruit, int add_fruit, int objective, list
     }
     //fflush() s'assure de bien afficher tout ce qu'il y a dans le cache
     
-    if (((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec)) <= DELAY*100000){
-      usleep(DELAY*100000 - ((stop.tv_usec - start.tv_usec) < 0 ? -1*(stop.tv_usec - start.tv_usec) : (stop.tv_usec - start.tv_usec)));
-    }
 
     fflush(stdout);
 
